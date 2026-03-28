@@ -109,9 +109,17 @@ elif choice == "Staff Management":
             supabase.table("staff_accounts").insert({"email": s_email, "full_name": s_name, "role": s_role}).execute()
             st.success("Staff member added.")
 
-# --- 10. CHAT/ANNOUNCEMENTS ---
+# --- 10. CHAT/ANNOUNCEMENTS (SAFE VERSION) ---
 st.sidebar.divider()
 st.sidebar.subheader("📢 Announcements")
-ann = supabase.table("announcements").select("*").order("created_at", desc=True).limit(2).execute()
-for a in ann.data:
-    st.sidebar.caption(f"**{a['author']}**: {a['message']}")
+
+try:
+    ann = supabase.table("announcements").select("*").order("created_at", desc=True).limit(2).execute()
+    if ann.data:
+        for a in ann.data:
+            st.sidebar.caption(f"**{a['author']}**: {a['message']}")
+    else:
+        st.sidebar.write("No announcements yet.")
+except Exception as e:
+    st.sidebar.error("Could not connect to database.")
+    # This helps you see the real error in the sidebar without crashing the app
